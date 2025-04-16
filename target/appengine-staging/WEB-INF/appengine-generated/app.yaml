@@ -1,0 +1,28 @@
+runtime: java21
+automatic_scaling:
+  min_instances: 1
+  max_instances: 2
+inbound_services:
+- warmup
+auto_id_policy: default
+handlers:
+- url: /
+  script: unused
+  login: optional
+  secure: optional
+- url: /_ah/.*
+  script: unused
+  login: optional
+  secure: optional
+- url: /api
+  script: unused
+  login: optional
+  secure: optional
+- url: /.*/
+  script: unused
+  login: optional
+  secure: optional
+- url: /api/.*
+  script: unused
+  login: optional
+  secure: optional
