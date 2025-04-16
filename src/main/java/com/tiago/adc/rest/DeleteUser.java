@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.Response;
 public class DeleteUser {
 
     private static final String KIND = "User";
+    private static final String SESSION_KIND = "Session";
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -78,10 +79,21 @@ public class DeleteUser {
                 return Response.status(403).entity("{\"erro\": \"BACKOFFICE só pode apagar ENDUSER ou PARTNER\"}").build();
             }
 
+            // Apagar sessões associadas ao utilizador alvo
+            Query<Entity> sessionQuery = Query.newEntityQueryBuilder()
+                .setKind(SESSION_KIND)
+                .setFilter(StructuredQuery.PropertyFilter.eq("user", targetUsername))
+                .build();
+
+            QueryResults<Entity> userSessions = datastore.run(sessionQuery);
+            while (userSessions.hasNext()) {
+                datastore.delete(userSessions.next().getKey());
+            }
+
             // Apagar utilizador
             datastore.delete(targetKey);
 
-            return Response.ok("{\"mensagem\": \"Utilizador apagado com sucesso\"}").build();
+            return Response.ok("{\"mensagem\": \"Utilizador e sessões apagados com sucesso\"}").build();
 
         } catch (Exception e) {
             e.printStackTrace();
